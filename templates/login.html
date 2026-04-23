@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Naranja</title>
+    <style>
+        body { font-family: sans-serif; background: #ffcc33; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #ff6a00; padding: 2rem; border-radius: 12px; width: 300px; color: white; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #1877f2; color: white; border: none; cursor: pointer; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Acceso</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="enviar('login')">Entrar</button>
+        <button style="background: #28a745" onclick="enviar('register')">Registrarse</button>
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        async function enviar(tipo) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
+            const route = tipo === 'login' ? '/api/login' : '/api/register';
+
+            const res = await fetch(route, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+
+            if (res.ok && tipo === 'login') {
+                window.location.href = "/todo"; // REDIRECCIÓN A LA OTRA PÁGINA
+            } else {
+                const data = await res.json();
+                document.getElementById('msg').innerText = data.message;
+            }
+        }
+    </script>
+</body>
+</html>

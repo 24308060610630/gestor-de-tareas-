@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Tareas</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 400px; }
+        .task { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .del-btn { color: red; cursor: pointer; border: none; background: none; font-weight: bold; }
+        input { padding: 10px; width: 70%; border: 1px solid #ddd; border-radius: 5px; }
+        button.add { padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gestor de Tareas</h2>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="taskInput" placeholder="Nueva tarea...">
+            <button class="add" onclick="addTask()">Añadir</button>
+        </div>
+        <div id="taskList" style="margin-top: 20px;"></div>
+        <hr>
+        <button onclick="window.location.href='/'" style="width: 100%; padding: 10px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+    </div>
+
+    <script>
+        async function loadTasks() {
+            const res = await fetch('/api/tasks');
+            const data = await res.json();
+            const list = document.getElementById('taskList');
+            list.innerHTML = data.map(t => `
+                <div class="task">
+                    <span>${t.texto}</span>
+                    <button class="del-btn" onclick="deleteTask('${t._id}')">Eliminar</button>
+                </div>
+            `).join('');
+        }
+
+        async function addTask() {
+            const texto = document.getElementById('taskInput').value;
+            if(!texto) return;
+            await fetch('/api/tasks', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({texto})
+            });
+            document.getElementById('taskInput').value = "";
+            loadTasks();
+        }
+
+        async function deleteTask(id) {
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            loadTasks();
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>
